@@ -5,7 +5,6 @@
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH -o titanic.out
 #SBATCH --mem=2G
-#SBATCH --array=1-1000
 #SBATCH --account=def-ljfoster
 
 ### Random grid search of all hyperparameters
