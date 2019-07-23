@@ -42,17 +42,26 @@ pre.titanic = function(data){
   
   
   # impute age with regression # DATA LEAKAGE!
-  xx.feats = c("Pclass", "title", "Sex", "SibSp", "Parch","Age",
+  xx.feats = c("Pclass", "title", "Sex", "SibSp", "Parch",
                "n.acq", "n.cabin", "letter.cabin")
   xx.feats = intersect(xx.feats,names(data))
   yy = data$Age
   xx = data[,xx.feats]
   df = as.data.frame(cbind(yy,xx))
-  #df$letter.cabin = factor(df$letter.cabin, levels=c("A","B","C","D","E","F"))
   names(df) = c("Age", names(xx))
   I = is.na(data$Age) # passengers with missing age
-  fit = glm(df$Age[!I] ~ ., data=df[!I,])
-  data$Age[I] = predict(fit, newdata = df[I,])
+  # only use factors with equal levels in both splits
+  char.columns = names(select_if(df, is.character))
+  bad.columns = character(length(char.columns))
+  for (ii in 1:length(char.columns)) {
+    if (!identical(unique(df[I,char.columns[ii]]), unique(df[!I,char.columns[ii]]))) {
+      bad.columns[ii] = char.columns[ii]
+    }
+  }
+  good.columns = names(df)
+  good.columns = good.columns[!good.columns %in% bad.columns]
+  fit = glm(df$Age[!I] ~ ., data=df[!I,good.columns])
+  data$Age[I] = predict(fit, newdata = df[I,good.columns])
   
   
   # make predictor, response explicitly

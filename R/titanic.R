@@ -106,6 +106,7 @@ for (iter in 2:iterMax) {
         if (tmp.var==0) flag.bad[jj] = 1
       }
     }
+    featsbad = character(0)
     if (sum(flag.bad)>0) {
       featsbad = names(XX.train)[which(flag.bad>0)]
     }
