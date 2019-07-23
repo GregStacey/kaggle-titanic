@@ -182,6 +182,8 @@ for (iter in 2:iterMax) {
     predictions.final = predict(mod.final, meta.test, type="raw")
     df.stack$Accuracy[cc] = sum(predictions.final == YY.test) / length(YY.test)
     df.stack$model[cc] = "stack"
+    df.stack$iter[cc] = iter
+    df.stack$paramid[cc] = hi
     for (ii in 1:length(classifiers)) {
       cc = cc+1
       predictions.final = predict(mods.whole[[ii]], meta.test, type="raw")
@@ -203,6 +205,8 @@ save(df.xval.control, df.stack, file="./data/stack.accuracy.Rda")
 
 
 
-
-
+load("data/stack.accuracy.Rda")
+df.stack$paramid[seq(from=1, to=nrow(df.stack), by=10)] = df.stack$paramid[seq(from=1, to=nrow(df.stack), by=10)+1]
+df.stack$iter[seq(from=1, to=nrow(df.stack), by=10)] = df.stack$iter[seq(from=1, to=nrow(df.stack), by=10)+1]
+ggplot(df.stack[1:cc,], aes(x=model, y=Accuracy)) + geom_boxplot()
 

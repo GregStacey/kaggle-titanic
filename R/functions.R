@@ -13,7 +13,7 @@ classifiers = c("svmLinear", # svm
                 "xgbDART","xgbLinear","xgbTree", # xgboost
                 "spls", # pls-da
                 "glmnet") 
-stack.classifier = c("svmLinear", "rf", "lm", "glmnet")
+stack.classifier = c("svmLinear", "rf", "glmnet")
 
 
 # functions
