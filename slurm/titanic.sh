@@ -11,7 +11,7 @@
 ### Random grid search of all hyperparameters
 
 module load gcc/7.3.0
-module load rdkit/2018.03.3
+module load r/3.4.4
 
 PROJECT_DIR=~/projects/def-ljfoster/rstacey/kaggle-titanic/
 cd ${PROJECT_DIR}
