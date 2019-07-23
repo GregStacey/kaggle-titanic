@@ -53,7 +53,7 @@ for (iter in 2:iterMax) {
     source("R/functions.R")
     print(1)
     # load data
-    data.train = as.data.frame(read_csv("../data/train.csv"))
+    data.train = as.data.frame(read_csv("./data/train.csv"))
     if (T){
       # for optimizing, split data.train (w/ labels) into train and test
       I.test = (1:nrow(data.train)) %in% sample(nrow(data.train), round(nrow(data.train) / 5))
@@ -61,7 +61,7 @@ for (iter in 2:iterMax) {
       data.train = data.train[!I.test,]
     } else {
       # use the real (unlabeled!) test data for testing
-      data.test = as.data.frame(read_csv("../data/test.csv"))
+      data.test = as.data.frame(read_csv("./data/test.csv"))
     }
     
     # i) remove a feature
@@ -192,13 +192,13 @@ for (iter in 2:iterMax) {
     print(10)
     
     # save in case of crash
-    save(df.xval.control, df.stack, file="../data/stack.accuracy.Rda")
+    save(df.xval.control, df.stack, file="./data/stack.accuracy.Rda")
   }
 }
 
 # final save
 df.stack = df.stack[1:cc,]
-save(df.xval.control, df.stack, file="../data/stack.accuracy.Rda")
+save(df.xval.control, df.stack, file="./data/stack.accuracy.Rda")
 
 
 
