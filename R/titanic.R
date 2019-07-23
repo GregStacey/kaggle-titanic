@@ -19,7 +19,7 @@
 # 1. engineered features. e.g. don't keep cabin numbers
 # 2. base models. e.g. only stack the best 5 models
 # 3. stacking model.
-source("functions.R")
+source("R/functions.R")
 base.range = c(9, 4)
 feat.removed = c("none", "Ticket", "Cabin", "Embarked")
 df.xval.control = data.frame(base = numeric(10^3),
@@ -50,7 +50,7 @@ iterMax = 10
 for (iter in 2:iterMax) {
   for (hi in 1:nrow(df.xval.control)) {
     
-    source("functions.R")
+    source("R/functions.R")
     print(1)
     # load data
     data.train = as.data.frame(read_csv("../data/train.csv"))
