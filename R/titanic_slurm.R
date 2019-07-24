@@ -51,7 +51,7 @@ df.xval.control = df.xval.control[1:cc,]
 
 # read command line argument
 # it tells us where we are in df.xval.control
-hi = commandArgs(trailingOnly = T)
+hi = as.numeric(commandArgs(trailingOnly = T))
 print(paste("command arg is", hi))
 iter = df.xval.control$iter[hi]
 
