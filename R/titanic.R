@@ -205,7 +205,7 @@ for (iter in 2:iterMax) {
     print(10)
     
     # save in case of crash
-    save(df.xval.control, df.stack, file="./data/stack.accuracy.Rda")
+    save(df.xval.control, df.stack, file="./data/stack.accuracy2.Rda")
   }
 }
 
@@ -223,7 +223,7 @@ for (ii in 1:length(unqiter)) {
 
 # final save
 df.stack = df.stack[1:cc,]
-save(df.xval.control, df.stack, file="./data/stack.accuracy.Rda")
+save(df.xval.control, df.stack, file="./data/stack.accuracy2.Rda")
 
 
 
@@ -235,7 +235,7 @@ df.stack = df.stack[!df.stack$iter==0,]
 ggplot(df.stack, aes(x=model, y=Accuracy)) + geom_boxplot()
 ggplot(df.stack, aes(x=paramid, y=Accuracy, color=is.stack)) + geom_point(alpha=.4)
 ggplot(df.stack, aes(x=Accuracy, fill=is.stack)) + geom_density(alpha=.4)
-
+ggplot(df.stack, aes(x=model.rank, fill=model)) + geom_density(alpha=.2)
 
 
 
