@@ -12,7 +12,6 @@
 
 
 
-
 # SET UP STACKING HYPERPARAMETERS
 # things to play with
 # 1. engineered features. e.g. don't keep cabin numbers
@@ -29,6 +28,7 @@ df.xval.control = data.frame(iter = numeric(10^4),
                              stack.feat = character(10^4),
                              feat.removed = character(10^4), stringsAsFactors = F)
 cc = 0
+iterMax = 10
 for (iter in 1:iterMax) {
   for (ii in 1:length(base.range)) {
     for (jj in 1:length(stack.classifier)) {
