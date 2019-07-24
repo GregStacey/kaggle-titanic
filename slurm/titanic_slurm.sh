@@ -16,4 +16,4 @@ module load r/3.4.4
 PROJECT_DIR=~/projects/def-ljfoster/rstacey/kaggle-titanic/
 cd ${PROJECT_DIR}
 
-Rscript ${PROJECT_DIR}/R/titanic.R $SLURM_ARRAY_TASK_ID
+Rscript ${PROJECT_DIR}/R/titanic_slurm.R $SLURM_ARRAY_TASK_ID
