@@ -53,7 +53,7 @@ df.xval.control = df.xval.control[1:cc,]
 # it tells us where we are in df.xval.control
 hi = commandArgs(trailingOnly = T)
 print(paste("command arg is", hi))
-iter = df.xval.control$iter[cc]
+iter = df.xval.control$iter[hi]
 
 
 # Stack
@@ -81,6 +81,7 @@ if (T){
 }
 
 # i) remove a feature
+str(data.train)
 data.train = data.train[,!names(data.train) == df.xval.control$feat.removed[hi]]
 data.test = data.test[,!names(data.test) == df.xval.control$feat.removed[hi]]
 
