@@ -13,7 +13,6 @@
 
 
 
-
 # SET UP STACKING HYPERPARAMETERS
 # things to play with
 # 1. engineered features. e.g. don't keep cabin numbers
@@ -226,6 +225,12 @@ for (iter in 1:iterMax) {
   }
 }
 
+# oops! add `stack.feat` to df.stack
+df.stack$stack.feat = numeric(nrow(df.stack))
+for (ii in 1:nrow(df.stack)) {
+  df.stack$stack.feat[ii] = df.xval.control$stack.feat[df.stack$paramid[ii]]
+}
+
 # rank the models in each paramid+iter
 df.stack$model.rank = numeric(nrow(df.stack))
 unqiter = unique(df.stack$iter)
@@ -238,7 +243,7 @@ for (ii in 1:length(unqiter)) {
     df.stack$model.rank[I] = order(tmp$Accuracy, decreasing = T)
   }
 }
-df.stack$model.rank = (df.stack$model.rank-1) / (df.stack$n.base - 1)
+df.stack$model.rank = (df.stack$model.rank-1) / (df.stack$n.base)
 
 # final save
 df.stack = df.stack[1:cc,]
@@ -246,8 +251,7 @@ save(df.xval.control, df.stack, file="./data/stack.accuracy2.Rda")
 
 
 
-load("data/stack.accuracy.Rda")
-df.stack$is.stack = df.stack$model=="stack"
+load("/Users/gregstacey/Professional/kaggle/titanic/data/stack.accuracy2.Rda")
 df.stack = df.stack[!df.stack$iter==0,]
 
 ggplot(df.stack, aes(x=model, y=Accuracy)) + geom_boxplot()
@@ -258,9 +262,9 @@ ggplot(df.stack, aes(x=Accuracy, fill=is.stack)) + geom_density(alpha=.4)
 # Answer: all the time (on average)
 ggplot(df.stack, aes(y=model.rank, x=model)) + geom_boxplot() + 
   facet_grid(stack.class ~ n.base)
-ggsave("/Users/gregstacey/Professional/kaggle/titanic/figures/model_rank.jpg")
+#ggsave("/Users/gregstacey/Professional/kaggle/titanic/figures/model_rank.jpg")
 
-# Q: n.base? stack.class? feat.remove?
+# Q: n.base? stack.class? feat.remove? stack.feat?
 # A: four base models, rf, remove Cabin
 I = df.stack$model=="stack"
 ggplot(df.stack[I,], aes(y=Accuracy, x=feat.removed, color=n.base)) + geom_boxplot() + 
