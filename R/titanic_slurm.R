@@ -81,7 +81,8 @@ if (T){
 }
 
 # i) remove a feature
-str(data.train)
+str(hi)
+print(hi)
 data.train = data.train[,!names(data.train) == df.xval.control$feat.removed[hi]]
 data.test = data.test[,!names(data.test) == df.xval.control$feat.removed[hi]]
 
