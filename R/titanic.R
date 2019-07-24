@@ -42,9 +42,13 @@ df.xval.control = df.xval.control[1:cc,]
 
 
 # Stack
-df.stack = data.frame(Accuracy = numeric(10^3),
-                      model = character(10^3), 
-                      iter = numeric(10^3), stringsAsFactors = F)
+df.stack = data.frame(Accuracy = numeric(10^5),
+                      model = character(10^5), 
+                      iter = numeric(10^5), 
+                      n.base = numeric(10^5), 
+                      stack.class = character(10^5), 
+                      feat.removed = character(10^5), 
+                      paramid = numeric(10^5), stringsAsFactors = F)
 cc = 0
 iterMax = 10
 for (iter in 2:iterMax) {
@@ -183,6 +187,9 @@ for (iter in 2:iterMax) {
     df.stack$Accuracy[cc] = sum(predictions.final == YY.test) / length(YY.test)
     df.stack$model[cc] = "stack"
     df.stack$iter[cc] = iter
+    df.stack$n.base[cc] = df.xval.control$base[hi]
+    df.stack$stack.class[cc] = df.xval.control$stack.class[hi]
+    df.stack$feat.removed[cc] = df.xval.control$feat.removed[hi]
     df.stack$paramid[cc] = hi
     for (ii in 1:length(classifiers)) {
       cc = cc+1
@@ -190,12 +197,27 @@ for (iter in 2:iterMax) {
       df.stack$Accuracy[cc] = sum(predictions.final == YY.test) / length(YY.test)
       df.stack$model[cc] = classifiers[ii]
       df.stack$iter[cc] = iter
+      df.stack$n.base[cc] = df.xval.control$base[hi]
+      df.stack$stack.class[cc] = df.xval.control$stack.class[hi]
+      df.stack$feat.removed[cc] = df.xval.control$feat.removed[hi]
       df.stack$paramid[cc] = hi
     }
     print(10)
     
     # save in case of crash
     save(df.xval.control, df.stack, file="./data/stack.accuracy.Rda")
+  }
+}
+
+# rank the models in each paramid+iter
+df.stack$model.rank = numeric(nrow(df.stack))
+unqiter = unique(df.stack$iter)
+unqparam = unique(df.stack$paramid)
+for (ii in 1:length(unqiter)) {
+  for (jj in 1:length(unqparam)) {
+    I = df.stack$iter==unqiter[ii] & df.stack$paramid==unqparam[jj]
+    tmp = df.stack[I,]
+    df.stack$model.rank[I] = order(tmp$Accuracy, decreasing = T)
   }
 }
 
@@ -206,7 +228,14 @@ save(df.xval.control, df.stack, file="./data/stack.accuracy.Rda")
 
 
 load("data/stack.accuracy.Rda")
-df.stack$paramid[seq(from=1, to=nrow(df.stack), by=10)] = df.stack$paramid[seq(from=1, to=nrow(df.stack), by=10)+1]
-df.stack$iter[seq(from=1, to=nrow(df.stack), by=10)] = df.stack$iter[seq(from=1, to=nrow(df.stack), by=10)+1]
-ggplot(df.stack[1:cc,], aes(x=model, y=Accuracy)) + geom_boxplot()
+df.stack$is.stack = df.stack$model=="stack"
+df.stack = df.stack[!df.stack$model=="Rborist",]
+df.stack = df.stack[!df.stack$iter==0,]
+
+ggplot(df.stack, aes(x=model, y=Accuracy)) + geom_boxplot()
+ggplot(df.stack, aes(x=paramid, y=Accuracy, color=is.stack)) + geom_point(alpha=.4)
+ggplot(df.stack, aes(x=Accuracy, fill=is.stack)) + geom_density(alpha=.4)
+
+
+
 
