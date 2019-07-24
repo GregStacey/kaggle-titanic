@@ -42,7 +42,7 @@ pre.titanic = function(data){
   
   
   # impute age with regression # DATA LEAKAGE!
-  xx.feats = c("Pclass", "title", "Sex", "SibSp", "Parch",
+  xx.feats = c("Pclass", "title", "Sex", "SibSp", "Parch","Fare",
                "n.acq", "n.cabin", "letter.cabin")
   xx.feats = intersect(xx.feats,names(data))
   yy = data$Age

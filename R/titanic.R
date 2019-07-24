@@ -19,20 +19,26 @@
 # 1. engineered features. e.g. don't keep cabin numbers
 # 2. base models. e.g. only stack the best 5 models
 # 3. stacking model.
+# 4. stacking features
 source("R/functions.R")
 base.range = c(9, 4)
-feat.removed = c("none", "Ticket", "Cabin", "Embarked")
+feat.removed = c("none", "Cabin", "nacq", "n.cabin", "titlenone")
+stack.feat = c("all","just.class")
 df.xval.control = data.frame(base = numeric(10^3),
                              stack.class = character(10^3),
+                             stack.feat = character(10^3),
                              feat.removed = character(10^3), stringsAsFactors = F)
 cc = 0
 for (ii in 1:length(base.range)) {
   for (jj in 1:length(stack.classifier)) {
     for (kk in 1:length(feat.removed)) {
-      cc = cc+1
-      df.xval.control$base[cc] = base.range[ii]
-      df.xval.control$stack.class[cc] = stack.classifier[jj]
-      df.xval.control$feat.removed[cc] = feat.removed[kk]
+      for (mm in 1:length(stack.feat)) {
+        cc = cc+1
+        df.xval.control$base[cc] = base.range[ii]
+        df.xval.control$stack.class[cc] = stack.classifier[jj]
+        df.xval.control$stack.feat[cc] = stack.feat[mm]
+        df.xval.control$feat.removed[cc] = feat.removed[kk]
+      }
     }
   }
 }
@@ -50,8 +56,8 @@ df.stack = data.frame(Accuracy = numeric(10^5),
                       feat.removed = character(10^5), 
                       paramid = numeric(10^5), stringsAsFactors = F)
 cc = 0
-iterMax = 10
-for (iter in 2:iterMax) {
+iterMax = 5
+for (iter in 1:iterMax) {
   for (hi in 1:nrow(df.xval.control)) {
     
     source("R/functions.R")
@@ -81,6 +87,11 @@ for (iter in 2:iterMax) {
     tmp = pre.titanic(data.test)
     XX.test = tmp[[1]]
     YY.test = tmp[[2]]
+    
+    # i) remove a feature 
+    #    (need this here because some feat.removed are in data.train, some in XX.train)
+    XX.train = XX.train[,!names(XX.train) == df.xval.control$feat.removed[hi]]
+    XX.test = XX.test[,!names(XX.test) == df.xval.control$feat.removed[hi]]
     
     # cleaning: remove any features not in common
     badfeats = setdiff(names(XX.train), names(XX.test))
@@ -150,6 +161,12 @@ for (iter in 2:iterMax) {
     meta.train = create.meta(XX.train, mods, T)
     meta.test = create.meta(XX.test, mods, F)
     
+    # iv) use all features, or just the base model predictions?
+    if (df.xval.control$stack.feat[hi] == "just.cass") {
+      meta.train = meta.train[,grepl("prob.alive", names(meta.train))]
+      meta.test = meta.test[,grepl("prob.alive", names(meta.test))]
+    }
+    
     print(7)
     
     ### 5. Fit each M to all of train, predict on test.
@@ -216,10 +233,12 @@ unqparam = unique(df.stack$paramid)
 for (ii in 1:length(unqiter)) {
   for (jj in 1:length(unqparam)) {
     I = df.stack$iter==unqiter[ii] & df.stack$paramid==unqparam[jj]
+    if (sum(I)==0) next
     tmp = df.stack[I,]
     df.stack$model.rank[I] = order(tmp$Accuracy, decreasing = T)
   }
 }
+df.stack$model.rank = (df.stack$model.rank-1) / (df.stack$n.base - 1)
 
 # final save
 df.stack = df.stack[1:cc,]
@@ -229,13 +248,22 @@ save(df.xval.control, df.stack, file="./data/stack.accuracy2.Rda")
 
 load("data/stack.accuracy.Rda")
 df.stack$is.stack = df.stack$model=="stack"
-df.stack = df.stack[!df.stack$model=="Rborist",]
 df.stack = df.stack[!df.stack$iter==0,]
 
 ggplot(df.stack, aes(x=model, y=Accuracy)) + geom_boxplot()
 ggplot(df.stack, aes(x=paramid, y=Accuracy, color=is.stack)) + geom_point(alpha=.4)
 ggplot(df.stack, aes(x=Accuracy, fill=is.stack)) + geom_density(alpha=.4)
-ggplot(df.stack, aes(x=model.rank, fill=model)) + geom_density(alpha=.2)
 
+# when was stacking worth it?
+# Answer: all the time (on average)
+ggplot(df.stack, aes(y=model.rank, x=model)) + geom_boxplot() + 
+  facet_grid(stack.class ~ n.base)
+ggsave("/Users/gregstacey/Professional/kaggle/titanic/figures/model_rank.jpg")
+
+# Q: n.base? stack.class? feat.remove?
+# A: four base models, rf, remove Cabin
+I = df.stack$model=="stack"
+ggplot(df.stack[I,], aes(y=Accuracy, x=feat.removed, color=n.base)) + geom_boxplot() + 
+  facet_grid(n.base ~ stack.class)
 
 
