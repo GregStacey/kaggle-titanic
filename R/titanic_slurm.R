@@ -79,12 +79,6 @@ if (T){
   data.test = as.data.frame(read_csv("./data/test.csv"))
 }
 
-# i) remove a feature
-str(hi)
-print(hi)
-data.train = data.train[,!names(data.train) == df.xval.control$feat.removed[hi]]
-data.test = data.test[,!names(data.test) == df.xval.control$feat.removed[hi]]
-
 print(2)
 
 # pre-process (feature engineer, etc.)
@@ -94,11 +88,6 @@ YY.train = tmp[[2]]
 tmp = pre.titanic(data.test)
 XX.test = tmp[[1]]
 YY.test = tmp[[2]]
-
-# i) remove a feature 
-#    (need this here because some feat.removed are in data.train, some in XX.train)
-XX.train = XX.train[,!names(XX.train) == df.xval.control$feat.removed[hi]]
-XX.test = XX.test[,!names(XX.test) == df.xval.control$feat.removed[hi]]
 
 # cleaning: remove any features not in common
 badfeats = setdiff(names(XX.train), names(XX.test))

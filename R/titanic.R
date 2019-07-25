@@ -19,10 +19,10 @@ df.stack = merge.titanic(fns)
 
 
 # make paramid explicitly
-# sets = paste(df.stack$n.base, df.stack$stack.class, 
-#                 df.stack$stack.feat, df.stack$feat.removed, sep="")
-# unqsets = unique(sets)
-# df.stack$paramid = match(sets, unqsets)
+sets = paste(df.stack$n.base, df.stack$stack.class,
+                df.stack$stack.feat, df.stack$feat.removed, sep="")
+unqsets = unique(sets)
+df.stack$paramid = match(sets, unqsets)
 
 # make parmodid explicitly
 setmods = paste(df.stack$n.base, df.stack$model, df.stack$stack.class,
@@ -52,7 +52,7 @@ df.stack$nreps= numeric(nrow(df.stack))
 for (ii in 1:length(unqparam)) {
   for (jj in 1:length(unqmods)) {
     I = df.stack$paramid==unqparam[ii] & df.stack$model==unqmods[jj]
-    df.stack$avgacc[I] = mean(df.stack$Accuracy[I])
+    df.stack$avgacc[I] = mean(df.stack$Accuracy[I], na.rm=T)
     df.stack$nreps[I] = sum(I)
   }
 }
@@ -87,12 +87,16 @@ I.best = which(df.stack$parmodid == best.parmod.id)
 
 # compare it to every other parameter set
 allparams = unique(df.stack$parmodid)
-pp = numeric(length(allparams))
+pp = data.frame(pp = rep(NA, length(allparams)),
+                mag = numeric(length(allparams))) 
 for (ii in 1:length(allparams)) {
   I = which(df.stack$parmodid == allparams[ii])
   y = df.stack$Accuracy[I]
+  y = y[!is.na(y)]
+  if (length(y) < min.reps) next
   
-  pp[ii] = wilcox.test(df.stack$Accuracy[I.best], y)$p.value
+  pp$pp[ii] = wilcox.test(df.stack$Accuracy[I.best], y)$p.value
+  pp$mag[ii] = mean(df.stack$Accuracy[I.best] - mean(y))
 }
 
 
