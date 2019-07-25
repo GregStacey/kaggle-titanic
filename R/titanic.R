@@ -12,14 +12,24 @@
 
 
 
+# load and merge iterations
+fns = dir("data/data/", full.names = T)
+df.stack = merge.titanic(fns)
 
 
 
-# oops! I got paramid wrong
-sets = paste(df.stack$n.base, df.stack$stack.class, 
+# make paramid explicitly
+# sets = paste(df.stack$n.base, df.stack$stack.class, 
+#                 df.stack$stack.feat, df.stack$feat.removed, sep="")
+# unqsets = unique(sets)
+# df.stack$paramid = match(sets, unqsets)
+
+# make parmodid explicitly
+setmods = paste(df.stack$n.base, df.stack$model, df.stack$stack.class,
                 df.stack$stack.feat, df.stack$feat.removed, sep="")
-unqsets = unique(sets)
-df.stack$paramid = match(sets, unqsets)
+unqsetmods = unique(setmods)
+df.stack$parmodid = match(setmods, unqsetmods)
+
 
 # rank the models in each paramid+iter
 df.stack$model.rank = numeric(nrow(df.stack))
@@ -47,18 +57,14 @@ for (ii in 1:length(unqparam)) {
   }
 }
 
-# final save
-df.stack = df.stack[1:cc,]
-save(df.xval.control, df.stack, file="./data/stack.accuracy2.Rda")
+# remove anything with <N min.reps
+min.reps = 5
+df.stack = df.stack[df.stack$nreps>=min.reps, ]
 
 
 
-load("/Users/gregstacey/Professional/kaggle/titanic/data/stack.accuracy2.Rda")
-df.stack = df.stack[!df.stack$iter==0,]
 
-ggplot(df.stack, aes(x=model, y=Accuracy)) + geom_boxplot()
-ggplot(df.stack, aes(x=paramid, y=Accuracy, color=is.stack)) + geom_point(alpha=.4)
-ggplot(df.stack, aes(x=Accuracy, fill=is.stack)) + geom_density(alpha=.4)
+# data exploration
 
 # when was stacking worth it?
 # Answer: all the time (on average)
@@ -71,5 +77,23 @@ ggplot(df.stack, aes(y=model.rank, x=model)) + geom_boxplot() +
 I = df.stack$model=="stack"
 ggplot(df.stack[I,], aes(y=Accuracy, x=feat.removed, color=stack.feat)) + geom_boxplot() + 
   facet_grid(n.base ~ stack.class)
+
+
+
+
+# find the best parameter set
+best.parmod.id = df.stack$parmodid[which.max(df.stack$avgacc)]
+I.best = which(df.stack$parmodid == best.parmod.id)
+
+# compare it to every other parameter set
+allparams = unique(df.stack$parmodid)
+pp = numeric(length(allparams))
+for (ii in 1:length(allparams)) {
+  I = which(df.stack$parmodid == allparams[ii])
+  y = df.stack$Accuracy[I]
+  
+  pp[ii] = wilcox.test(df.stack$Accuracy[I.best], y)$p.value
+}
+
 
 

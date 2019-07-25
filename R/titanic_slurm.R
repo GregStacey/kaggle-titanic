@@ -25,7 +25,6 @@ df.xval.control = data.frame(iter = numeric(10^4),
                              base = numeric(10^4),
                              stack.class = character(10^4),
                              stack.feat = character(10^4),
-                             feat.removed = character(10^4), 
                              paramid = numeric(10^4), stringsAsFactors = F)
 cc = 0
 id = 0
@@ -40,7 +39,6 @@ for (ii in 1:length(base.range)) {
         df.xval.control$base[cc] = base.range[ii]
         df.xval.control$stack.class[cc] = stack.classifier[jj]
         df.xval.control$stack.feat[cc] = stack.feat[mm]
-        df.xval.control$feat.removed[cc] = feat.removed[kk]
         df.xval.control$paramid[cc] = id
       }
     }
