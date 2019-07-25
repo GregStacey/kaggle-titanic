@@ -225,11 +225,11 @@ for (iter in 1:iterMax) {
   }
 }
 
-# oops! add `stack.feat` to df.stack
-df.stack$stack.feat = numeric(nrow(df.stack))
-for (ii in 1:nrow(df.stack)) {
-  df.stack$stack.feat[ii] = df.xval.control$stack.feat[df.stack$paramid[ii]]
-}
+# oops! I got paramid wrong
+sets = paste(df.stack$n.base, df.stack$stack.class, 
+                df.stack$stack.feat, df.stack$feat.removed, sep="")
+unqsets = unique(sets)
+df.stack$paramid = match(sets, unqsets)
 
 # rank the models in each paramid+iter
 df.stack$model.rank = numeric(nrow(df.stack))
@@ -244,6 +244,18 @@ for (ii in 1:length(unqiter)) {
   }
 }
 df.stack$model.rank = (df.stack$model.rank-1) / (df.stack$n.base)
+
+# get the average accuracy over iters
+unqmods = unique(df.stack$model)
+df.stack$avgacc= numeric(nrow(df.stack))
+df.stack$nreps= numeric(nrow(df.stack))
+for (ii in 1:length(unqparam)) {
+  for (jj in 1:length(unqmods)) {
+    I = df.stack$paramid==unqparam[ii] & df.stack$model==unqmods[jj]
+    df.stack$avgacc[I] = mean(df.stack$Accuracy[I])
+    df.stack$nreps[I] = sum(I)
+  }
+}
 
 # final save
 df.stack = df.stack[1:cc,]
@@ -267,7 +279,7 @@ ggplot(df.stack, aes(y=model.rank, x=model)) + geom_boxplot() +
 # Q: n.base? stack.class? feat.remove? stack.feat?
 # A: four base models, rf, remove Cabin
 I = df.stack$model=="stack"
-ggplot(df.stack[I,], aes(y=Accuracy, x=feat.removed, color=n.base)) + geom_boxplot() + 
+ggplot(df.stack[I,], aes(y=Accuracy, x=feat.removed, color=stack.feat)) + geom_boxplot() + 
   facet_grid(n.base ~ stack.class)
 
 

@@ -105,3 +105,27 @@ create.meta = function(data, mods, include.pred){
   
   return(data)
 }
+
+
+merge.titanic = function(fns) {
+  
+  for (ii in 1:length(fns)) {
+    bad.flag = 1
+    result = tryCatch({
+      load(fns[ii])
+      bad.flag = 0
+    }, error = function(error_condition) {
+      print(ii)
+    })
+    if (bad.flag==1) next
+    if (ii==1) {
+      tmp = df.stack
+    } else {
+      tmp = rbind(tmp, df.stack)
+    }
+  }
+  
+  df.stack = tmp
+  
+  return(df.stack)
+}
