@@ -55,15 +55,6 @@ print(paste("command arg is", hi))
 iter = df.xval.control$iter[hi]
 
 
-# Stack
-df.stack = data.frame(Accuracy = numeric(10^2),
-                      model = character(10^2), 
-                      iter = numeric(10^2), 
-                      n.base = numeric(10^2), 
-                      stack.class = character(10^2), 
-                      feat.removed = character(10^2), 
-                      paramid = numeric(10^2), stringsAsFactors = F)
-
 
 source("R/functions.R")
 print(1)
@@ -195,6 +186,14 @@ mod.final = caret::train(x=meta.train, y=YY.train,
 print(9)
 
 # report final accuracies - single models and stacked
+# Stack
+df.stack = data.frame(Accuracy = numeric(10^2),
+                      model = character(10^2), 
+                      iter = numeric(10^2), 
+                      n.base = numeric(10^2), 
+                      stack.class = character(10^2), 
+                      feat.removed = character(10^2), 
+                      paramid = numeric(10^2), stringsAsFactors = F)
 cc = 1
 predictions.final = predict(mod.final, meta.test, type="raw")
 df.stack$Accuracy[cc] = sum(predictions.final == YY.test) / length(YY.test)
@@ -202,7 +201,6 @@ df.stack$model[cc] = "stack"
 df.stack$iter[cc] = iter
 df.stack$n.base[cc] = df.xval.control$base[hi]
 df.stack$stack.class[cc] = df.xval.control$stack.class[hi]
-df.stack$feat.removed[cc] = df.xval.control$feat.removed[hi]
 df.stack$stack.feat[cc] = df.xval.control$stack.feat[hi]
 df.stack$paramid[cc] = hi
 for (ii in 1:length(classifiers)) {
@@ -213,7 +211,6 @@ for (ii in 1:length(classifiers)) {
   df.stack$iter[cc] = iter
   df.stack$n.base[cc] = df.xval.control$base[hi]
   df.stack$stack.class[cc] = df.xval.control$stack.class[hi]
-  df.stack$feat.removed[cc] = df.xval.control$feat.removed[hi]
   df.stack$stack.feat[cc] = df.xval.control$stack.feat[hi]
   df.stack$paramid[cc] = hi
 }
