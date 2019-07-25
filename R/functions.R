@@ -29,21 +29,21 @@ pre.titanic = function(data){
   if ("SibSp"%in%names(data) & "Parch"%in%names(data)) {
     data$n.acq = data$SibSp + data$Parch
   }
-  # 3. n.cabin = number of cabin assignments
-  if ("Cabin"%in%names(data)) {
-    data$n.cabin = str_count(data$Cabin, " ") + 1
-    data$n.cabin[is.na(data$n.cabin)] = 0
-    
-    # 4. letter.cabin = letter of cabin assignment (deck?)
-    data$letter.cabin = sapply(gsub('[[:digit:]]+', '', data$Cabin),
-                               substr, 1, 1)
-    data$letter.cabin[is.na(data$letter.cabin) | data$letter.cabin=="T"] = "none"
-  }
+  # # 3. n.cabin = number of cabin assignments
+  # if ("Cabin"%in%names(data)) {
+  #   data$n.cabin = str_count(data$Cabin, " ") + 1
+  #   data$n.cabin[is.na(data$n.cabin)] = 0
+  #   
+  #   # 4. letter.cabin = letter of cabin assignment (deck?)
+  #   data$letter.cabin = sapply(gsub('[[:digit:]]+', '', data$Cabin),
+  #                              substr, 1, 1)
+  #   data$letter.cabin[is.na(data$letter.cabin) | data$letter.cabin=="T"] = "none"
+  # }
   
   
   # impute age with regression # DATA LEAKAGE!
   xx.feats = c("Pclass", "title", "Sex", "SibSp", "Parch","Fare",
-               "n.acq", "n.cabin", "letter.cabin")
+               "n.acq", "letter.cabin")
   xx.feats = intersect(xx.feats,names(data))
   yy = data$Age
   xx = data[,xx.feats]

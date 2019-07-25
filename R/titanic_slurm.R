@@ -19,8 +19,7 @@
 # 3. stacking model.
 # 4. stacking features
 source("R/functions.R")
-base.range = c(9, 4)
-feat.removed = c("none", "Cabin", "nacq", "n.cabin", "titlenone")
+base.range = c(4, 6, 9)
 stack.feat = c("all","just.class")
 df.xval.control = data.frame(iter = numeric(10^4), 
                              base = numeric(10^4),
@@ -30,21 +29,19 @@ df.xval.control = data.frame(iter = numeric(10^4),
                              paramid = numeric(10^4), stringsAsFactors = F)
 cc = 0
 id = 0
-iterMax = 100
+iterMax = 50
 for (ii in 1:length(base.range)) {
   for (jj in 1:length(stack.classifier)) {
-    for (kk in 1:length(feat.removed)) {
-      for (mm in 1:length(stack.feat)) {
-        id = id+1
-        for (iter in 1:iterMax) {
-          cc = cc+1
-          df.xval.control$iter[cc] = iter
-          df.xval.control$base[cc] = base.range[ii]
-          df.xval.control$stack.class[cc] = stack.classifier[jj]
-          df.xval.control$stack.feat[cc] = stack.feat[mm]
-          df.xval.control$feat.removed[cc] = feat.removed[kk]
-          df.xval.control$paramid[cc] = id
-        }
+    for (mm in 1:length(stack.feat)) {
+      id = id+1
+      for (iter in 1:iterMax) {
+        cc = cc+1
+        df.xval.control$iter[cc] = iter
+        df.xval.control$base[cc] = base.range[ii]
+        df.xval.control$stack.class[cc] = stack.classifier[jj]
+        df.xval.control$stack.feat[cc] = stack.feat[mm]
+        df.xval.control$feat.removed[cc] = feat.removed[kk]
+        df.xval.control$paramid[cc] = id
       }
     }
   }
