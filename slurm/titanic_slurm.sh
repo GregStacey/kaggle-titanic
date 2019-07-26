@@ -6,7 +6,7 @@
 #SBATCH -o titanic_slurm.out
 #SBATCH --mem=2G
 #SBATCH --account=def-ljfoster
-#SBATCH --array=1-900
+#SBATCH --array=1-972
 
 ### Random grid search of all hyperparameters
 
