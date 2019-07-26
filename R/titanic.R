@@ -13,14 +13,14 @@
 
 
 # load and merge iterations
-fns = dir("data/data/", full.names = T)
+fns = dir("data/data2/", full.names = T)
 df.stack = merge.titanic(fns)
 
 
 
 # make paramid explicitly
 sets = paste(df.stack$n.base, df.stack$stack.class,
-                df.stack$stack.feat, df.stack$feat.removed, sep="")
+             df.stack$stack.feat, df.stack$feat.removed, sep="")
 unqsets = unique(sets)
 df.stack$paramid = match(sets, unqsets)
 
@@ -58,37 +58,25 @@ for (ii in 1:length(unqparam)) {
 }
 
 # remove anything with <N min.reps
-min.reps = 5
+min.reps = 20
 df.stack = df.stack[df.stack$nreps>=min.reps, ]
 
 
 
 
-# data exploration
-
-# when was stacking worth it?
-# Answer: all the time (on average)
-ggplot(df.stack, aes(y=model.rank, x=model)) + geom_boxplot() + 
-  facet_grid(stack.class ~ n.base)
-#ggsave("/Users/gregstacey/Professional/kaggle/titanic/figures/model_rank.jpg")
-
-# Q: n.base? stack.class? feat.remove? stack.feat?
-# A: four base models, rf, remove Cabin
-I = df.stack$model=="stack"
-ggplot(df.stack[I,], aes(y=Accuracy, x=feat.removed, color=stack.feat)) + geom_boxplot() + 
-  facet_grid(n.base ~ stack.class)
-
-
-
-
-# find the best parameter set
-best.parmod.id = df.stack$parmodid[which.max(df.stack$avgacc)]
+# find the best parameter set (and best stacking parameter set)
+best.parmod.id = unique(df.stack$parmodid[which.max(df.stack$avgacc)])
 I.best = which(df.stack$parmodid == best.parmod.id)
+I.stack = df.stack$model=="stack"
+best.parmod.stack = unique(df.stack$parmodid[which(df.stack$avgacc == max(df.stack$avgacc[I.stack]) & I.stack)])
+I.best.stack = which(df.stack$parmodid == best.parmod.stack)
 
 # compare it to every other parameter set
-allparams = unique(df.stack$parmodid)
+allparams = sort(unique(df.stack$parmodid))
+allparams.stack = sort(unique(df.stack$parmodid[df.stack$model=="stack"]))
 pp = data.frame(pp = rep(NA, length(allparams)),
-                mag = numeric(length(allparams))) 
+                mag = numeric(length(allparams)),
+                stack = allparams %in% allparams.stack) 
 for (ii in 1:length(allparams)) {
   I = which(df.stack$parmodid == allparams[ii])
   y = df.stack$Accuracy[I]
@@ -98,6 +86,8 @@ for (ii in 1:length(allparams)) {
   pp$pp[ii] = wilcox.test(df.stack$Accuracy[I.best], y)$p.value
   pp$mag[ii] = mean(df.stack$Accuracy[I.best] - mean(y))
 }
+pp$sig = pp$pp <= .05
 
-
+ggplot(pp, aes(x=mag, y=-log10(pp), color=stack)) + geom_point(alpha=.5) +
+  geom_hline(yintercept = -log10(.05))
 
