@@ -65,16 +65,10 @@ source("R/functions.R")
 
 # load data
 data.train = as.data.frame(read_csv("./data/train.csv"))
-if (T){
-  # for optimizing, split data.train (w/ labels) into train and test
-  I.test = (1:nrow(data.train)) %in% sample(nrow(data.train), round(nrow(data.train) / 5))
-  data.test = data.train[I.test,]
-  data.train = data.train[!I.test,]
-} else {
-  # use the real (unlabeled!) test data for testing
-  data.test = as.data.frame(read_csv("./data/test.csv"))
-  data.test$Fare[which(is.ha(data.test$Fare))] = 8
-}
+# for optimizing, split data.train (w/ labels) into train and test
+I.test = (1:nrow(data.train)) %in% sample(nrow(data.train), round(nrow(data.train) / 5))
+data.test = data.train[I.test,]
+data.train = data.train[!I.test,]
 
 
 # train and predict stacking classifier
@@ -82,6 +76,6 @@ tmp = train.stack(data.train, data.test, df.xval.control[hi,])
 df.stack = tmp[[1]]
 # save
 save(df.xval.control, df.stack, 
-     file=paste("./data/stack.accuracy_", hi, ".Rda", sep=""))
+     file=paste("./data/data3/stack.accuracy_", hi, ".Rda", sep=""))
 
 
